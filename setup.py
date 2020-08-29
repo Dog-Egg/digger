@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='digger',
-    version='0.0.0',
+    version='0.0.1',
     author='Lee',
     author_email='294622946@qq.com',
     url='https://github.com/Dog-Egg/digger',

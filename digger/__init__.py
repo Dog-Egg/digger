@@ -20,23 +20,25 @@ class Digger:
         items = []
         errors = []
 
-        async def fn():
-            for url in urls:
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(url) as response:
-                            html = await response.text()
-                except aiohttp.ClientError as e:
-                    errors.append(dict(url=url, message=repr(e)))
-                else:
-                    soup = BeautifulSoup(html, features="html.parser")
-                    text = soup.get_text()
-                    seg = jieba.cut(text)
-                    for w, n in Counter(seg).items():
-                        if (not self._words) or (w in self._words):
-                            items.append(dict(url=url, word=w, count=n))
+        async def request(url):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        html = await response.text()
+            except aiohttp.ClientError as e:
+                errors.append(dict(url=url, message=repr(e)))
+            else:
+                soup = BeautifulSoup(html, features="html.parser")
+                text = soup.get_text()
+                seg = jieba.cut(text)
+                for w, n in Counter(seg).items():
+                    if (not self._words) or (w in self._words):
+                        items.append(dict(url=url, word=w, count=n))
 
-        asyncio.run(fn())
+        async def main():
+            await asyncio.gather(*[request(url) for url in urls])
+
+        asyncio.run(main())
 
         if merge_result:
             counter = defaultdict(int)
